@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>Our Little Cake Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a2740;--cream:#fff4e6;--pink:#ff9fc0}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--cream);color:var(--ink);font-family:Fredoka,'Nunito',ui-rounded,system-ui,sans-serif;touch-action:none;user-select:none}
+body.game,body.game *{cursor:none!important}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#ui>*{position:fixed}
+#lobby{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;background:var(--cream);z-index:20;transition:opacity .8s}
+#lobby h1{font-size:clamp(40px,9vw,80px);line-height:.95;margin:0}#lobby .big{font-size:60px}#lobby p{margin:0;font-size:20px;opacity:.85}
+input{font:inherit;padding:10px 16px;border-radius:99px;border:2px solid var(--ink);background:#fff;color:var(--ink);text-align:center;width:220px}
+.chip,button{font:inherit;color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:99px;padding:8px 18px;transition:transform .12s,background .12s;pointer-events:auto}
+.chip:hover,button:hover{background:#ffd9e6;transform:translateY(-2px)}.chip:active,button:active{transform:scale(.94)}.chip.on{background:var(--pink)}.go{background:#ffe08a}.e{font-size:24px;padding:4px 12px}
+#hero{left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:10;transition:all 1s cubic-bezier(.2,.8,.2,1);white-space:pre-line;pointer-events:auto;width:92vw;animation:fi 1s}
+#hero .i{font-size:clamp(50px,10vw,100px)}#hero h1{font-size:clamp(40px,9vw,92px);line-height:.95;margin:6px 0}#hero p{font-size:20px;margin:8px 0;transition:opacity .4s}
+#hero.min{top:10px;transform:translate(-50%,0) scale(.27);transform-origin:top center;pointer-events:none}#hero.min p{opacity:0}
+@keyframes fi{from{opacity:0;transform:translate(-50%,-40%)}}
+#how{left:16px;bottom:16px;max-width:260px;font-size:14px;background:#fffc;border-radius:18px;padding:10px 14px;opacity:0;transition:opacity .6s;pointer-events:none}#how.show{opacity:1}#how ol{margin:4px 0;padding-left:18px}
+#tools{bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:70vw;z-index:5}
+#toast{top:30%;left:50%;transform:translateX(-50%);font-size:32px;opacity:0;transition:opacity .5s;pointer-events:none;z-index:12;text-align:center}#toast.show{opacity:1}
+#banner{top:70px;left:50%;transform:translateX(-50%);background:#fff;border-radius:99px;padding:6px 16px;display:none;z-index:15}
+#mute{right:12px;top:12px;z-index:30;padding:4px 10px}
+.cur{position:fixed;left:0;top:0;pointer-events:none;z-index:99;font-size:34px;will-change:transform;margin:-14px 0 0 -14px}
+.cur span{display:block;transition:transform .15s cubic-bezier(.3,2,.5,1)}.cur.down span{transform:scale(.8) rotate(-12deg)}
+.cur i{position:absolute;left:30px;top:32px;font:600 12px Fredoka;font-style:normal;color:#fff;padding:1px 8px;border-radius:99px;white-space:nowrap}
+.fl{position:fixed;bottom:-30px;pointer-events:none;opacity:.5;animation:up 9s linear forwards;z-index:1}@keyframes up{to{transform:translateY(-110vh) rotate(40deg)}}
+#meter{left:50%;bottom:70px;transform:translateX(-50%);display:none;text-align:center;width:min(440px,88vw);background:#fffd;border-radius:20px;padding:10px 16px;z-index:6;pointer-events:none;font-size:18px}
+.bar{position:relative;height:20px;border-radius:99px;background:#eadbe4;margin:8px 0;overflow:hidden}.bar u{display:block;height:100%;width:0}.bar s{position:absolute;left:40%;top:0;bottom:0;width:3px;background:var(--ink)}
+.pp{display:flex;gap:6px}.pp span{flex:1;height:8px;border-radius:99px;background:#eadbe4}
+#camc{right:12px;bottom:16px;display:none;grid-template-columns:repeat(4,38px);gap:4px;z-index:6}#camc button{padding:4px 0}
+</style>  <script type="module" crossorigin src="/assets/index-Nka21AJK.js"></script>
+</head><body>
+<canvas id="c"></canvas>
+<div id="ui"><div id="lobby"><div class="big">🌸</div><h1>OUR LITTLE<br>CAKE SHOP</h1><p>Two people.<br>One cake.<br>Make it yours.</p><input id="nm" placeholder="Your name" maxlength="14"><div id="lb"></div><div id="lm"></div></div>
+<div id="hero"></div><div id="how"></div><div id="tools"></div><div id="toast"></div><div id="banner"></div><div id="meter"><b id="mt"></b><div class="bar"><u id="mw"></u><s></s></div><div class="pp"><span id="p0"></span><span id="p1"></span></div></div><div id="camc"><button data-c="l" title="Rotate left">⟲</button><button data-c="r" title="Rotate right">⟳</button><button data-c="u" title="Look from above">▲</button><button data-c="d" title="Look from the side">▼</button><button data-c="in" title="Zoom in">＋</button><button data-c="out" title="Zoom out">－</button><button data-c="0" title="Reset view">⌂</button></div><button id="mute">🔊</button></div>
+<div id="mine" class="cur" style="display:none"><span>🖐️</span></div><div id="rcs"></div></body></html>
