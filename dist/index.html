@@ -20,6 +20,35 @@ input{font:inherit;padding:10px 16px;border-radius:99px;border:2px solid var(--i
 #toast{top:30%;left:50%;transform:translateX(-50%);font-size:32px;opacity:0;transition:opacity .5s;pointer-events:none;z-index:12;text-align:center}#toast.show{opacity:1}
 #banner{top:70px;left:50%;transform:translateX(-50%);background:#fff;border-radius:99px;padding:6px 16px;display:none;z-index:15}
 #mute{right:12px;top:12px;z-index:30;padding:4px 10px}
+#chat-toggle{right:62px;top:12px;z-index:30;padding:4px 10px;display:none}
+#chat-badge{position:absolute;top:-4px;right:-4px;background:var(--pink);color:var(--ink);border:2px solid var(--ink);border-radius:99px;font-size:11px;font-weight:600;min-width:18px;height:18px;line-height:14px;text-align:center;display:none}
+#chat-panel{position:fixed;right:12px;top:52px;width:min(320px,92vw);max-height:420px;display:flex;flex-direction:column;background:rgba(255,244,230,.92);backdrop-filter:blur(10px);border:2px solid var(--ink);border-radius:22px;box-shadow:0 8px 30px rgba(74,39,64,.15);z-index:35;overflow:hidden;transition:opacity .2s,transform .2s;pointer-events:auto}
+#chat-panel.hidden{opacity:0;transform:scale(.95) translateY(-8px);pointer-events:none}
+#chat-panel,#chat-panel *{cursor:auto!important;user-select:text}
+#chat-panel button,.chip-sm,#chat-toggle,#mute{cursor:pointer!important;user-select:none}
+.chat-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:2px solid rgba(74,39,64,.1);font-weight:600;font-size:16px}
+.chat-head button{background:none;border:none;font-size:18px;padding:2px 8px;border-radius:99px;color:var(--ink)}
+.chat-head button:hover{background:#ffd9e6}
+#chat-msgs{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:200px}
+.msg{display:flex;flex-direction:column;max-width:82%;animation:fi .2s}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.peer{align-self:flex-start;align-items:flex-start}
+.msg-bubble{padding:6px 12px;border:2px solid var(--ink);border-radius:16px;font-size:14px;line-height:1.3;word-break:break-word}
+.msg.me .msg-bubble{background:#ffd9e6;border-bottom-right-radius:4px}
+.msg.peer .msg-bubble{background:#fff;border-bottom-left-radius:4px}
+.msg-author{font-size:11px;font-weight:600;margin-bottom:2px;opacity:.8}
+#chat-quick{display:flex;gap:4px;padding:6px 10px;overflow-x:auto;border-top:1.5px solid rgba(74,39,64,.08);background:rgba(255,255,255,.5)}
+.chip-sm{font:inherit;font-size:12px;padding:3px 10px;border-radius:99px;border:1.5px solid var(--ink);background:#fff;white-space:nowrap;transition:transform .1s,background .1s}
+.chip-sm:hover{background:#ffd9e6;transform:translateY(-1px)}
+.chip-sm:active{transform:scale(.95)}
+#chat-form{display:flex;gap:6px;padding:8px 10px;background:rgba(255,255,255,.7);border-top:2px solid rgba(74,39,64,.1)}
+#chat-in{flex:1;padding:8px 14px;border-radius:99px;border:2px solid var(--ink);background:#fff;font:inherit;font-size:14px;color:var(--ink);outline:none;text-align:left;width:auto}
+#chat-send{padding:6px 14px;border-radius:99px;border:2px solid var(--ink);background:var(--pink);font-weight:600;color:var(--ink)}
+
+.chat-cur-bubble{position:absolute;left:17px;bottom:38px;transform:translateX(-50%);background:rgba(255,244,230,.94);backdrop-filter:blur(6px);color:var(--ink);border:2px solid var(--ink);border-radius:18px;padding:5px 12px;font:600 13px Fredoka,sans-serif;white-space:nowrap;max-width:200px;text-overflow:ellipsis;overflow:hidden;pointer-events:none;box-shadow:0 4px 14px rgba(74,39,64,.15);z-index:100;animation:popFade 3.5s forwards cubic-bezier(.2,.8,.2,1)}
+.chat-cur-bubble::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border-width:6px 6px 0;border-style:solid;border-color:var(--ink) transparent transparent}
+.chat-cur-bubble::before{content:'';position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);border-width:4px 4px 0;border-style:solid;border-color:rgba(255,244,230,.94) transparent transparent;z-index:1}
+@keyframes popFade{0%{opacity:0;transform:translateX(-50%) scale(.6) translateY(6px)}12%{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}75%{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}100%{opacity:0;transform:translateX(-50%) scale(.8) translateY(-6px)}}
 .cur{position:fixed;left:0;top:0;pointer-events:none;z-index:99;font-size:34px;will-change:transform;margin:-14px 0 0 -14px}
 .cur span{display:block;transition:transform .15s cubic-bezier(.3,2,.5,1)}.cur.down span{transform:scale(.8) rotate(-12deg)}
 .cur i{position:absolute;left:30px;top:32px;font:600 12px Fredoka;font-style:normal;color:#fff;padding:1px 8px;border-radius:99px;white-space:nowrap}
@@ -28,9 +57,15 @@ input{font:inherit;padding:10px 16px;border-radius:99px;border:2px solid var(--i
 .bar{position:relative;height:20px;border-radius:99px;background:#eadbe4;margin:8px 0;overflow:hidden}.bar u{display:block;height:100%;width:0}.bar s{position:absolute;left:40%;top:0;bottom:0;width:3px;background:var(--ink)}
 .pp{display:flex;gap:6px}.pp span{flex:1;height:8px;border-radius:99px;background:#eadbe4}
 #camc{right:12px;bottom:16px;display:none;grid-template-columns:repeat(4,38px);gap:4px;z-index:6}#camc button{padding:4px 0}
-</style>  <script type="module" crossorigin src="/assets/index-Nka21AJK.js"></script>
+.cream-drop{position:fixed;left:0;top:0;width:8px;height:14px;pointer-events:none;z-index:97;opacity:0;transform-origin:50% 20%;background:radial-gradient(ellipse at 34% 22%,#dff6ff 0%,#8ed8ff 35%,#39aef2 72%,#1878c8 100%);border:1.5px solid rgba(30,105,165,.55);border-radius:55% 45% 62% 38%/42% 48% 58% 58%;box-shadow:0 2px 8px rgba(28,126,195,.28),inset 1px 1px 2px rgba(255,255,255,.9);will-change:transform,opacity;animation:waterDropFall var(--dur,1.5s) cubic-bezier(.2,.72,.3,1) forwards}
+.cream-drop.burst{animation:waterDropBurst var(--dur,.8s) linear forwards}
+@keyframes waterDropFall{0%{opacity:0;transform:translate(-50%,-50%) translateY(0) scale(.5,.8) rotate(var(--rot,0deg))}8%{opacity:1}20%{opacity:1;transform:translate(-50%,-50%) translate(var(--dx,0px),calc(var(--fall,400px)*.04)) scale(.8,1.05) rotate(var(--rot,0deg))}40%{opacity:1;transform:translate(-50%,-50%) translate(var(--dx,0px),calc(var(--fall,400px)*.16)) scale(.9,1.12) rotate(var(--rot,0deg))}60%{opacity:1;transform:translate(-50%,-50%) translate(var(--dx,0px),calc(var(--fall,400px)*.36)) scale(.88,1.1) rotate(var(--rot,0deg))}80%{opacity:1;transform:translate(-50%,-50%) translate(var(--dx,0px),calc(var(--fall,400px)*.64)) scale(.8,1.06) rotate(var(--rot,0deg))}94%{opacity:1;transform:translate(-50%,-50%) translate(var(--dx,0px),calc(var(--fall,400px)*.88)) scale(.72,1.02) rotate(var(--rot,0deg))}100%{opacity:0;transform:translate(-50%,-50%) translate(var(--dx,0px),var(--fall,400px)) scale(.68,1) rotate(var(--rot,0deg))}}
+@keyframes waterDropBurst{0%{opacity:1;transform:translate(-50%,-50%) scale(.35,.55) rotate(var(--rot,0deg))}100%{opacity:0;transform:translate(-50%,-50%) translate(var(--bx,0px),var(--by,0px)) scale(.7,1.05) rotate(var(--rot,0deg))}}
+.cur.locked{filter:drop-shadow(0 0 10px rgba(255,111,165,.9));transition:transform .08s ease-out}
+</style>  <script type="module" crossorigin src="/assets/index-Bigeyz3L.js"></script>
 </head><body>
 <canvas id="c"></canvas>
+<div id="cream-fx"></div>
 <div id="ui"><div id="lobby"><div class="big">🌸</div><h1>OUR LITTLE<br>CAKE SHOP</h1><p>Two people.<br>One cake.<br>Make it yours.</p><input id="nm" placeholder="Your name" maxlength="14"><div id="lb"></div><div id="lm"></div></div>
-<div id="hero"></div><div id="how"></div><div id="tools"></div><div id="toast"></div><div id="banner"></div><div id="meter"><b id="mt"></b><div class="bar"><u id="mw"></u><s></s></div><div class="pp"><span id="p0"></span><span id="p1"></span></div></div><div id="camc"><button data-c="l" title="Rotate left">⟲</button><button data-c="r" title="Rotate right">⟳</button><button data-c="u" title="Look from above">▲</button><button data-c="d" title="Look from the side">▼</button><button data-c="in" title="Zoom in">＋</button><button data-c="out" title="Zoom out">－</button><button data-c="0" title="Reset view">⌂</button></div><button id="mute">🔊</button></div>
+<div id="hero"></div><div id="how"></div><div id="tools"></div><div id="toast"></div><div id="banner"></div><div id="meter"><b id="mt"></b><div class="bar"><u id="mw"></u><s></s></div><div class="pp"><span id="p0"></span><span id="p1"></span></div></div><div id="camc"><button data-c="l" title="Rotate left">⟲</button><button data-c="r" title="Rotate right">⟳</button><button data-c="u" title="Look from above">▲</button><button data-c="d" title="Look from the side">▼</button><button data-c="in" title="Zoom in">＋</button><button data-c="out" title="Zoom out">－</button><button data-c="0" title="Reset view">⌂</button></div><button id="chat-toggle" title="Chat">💬<span id="chat-badge"></span></button><div id="chat-panel" class="hidden"><div class="chat-head"><span>💬 Baker Chat</span><button id="chat-close" title="Close">✕</button></div><div id="chat-msgs"></div><div id="chat-quick"><button class="chip-sm" data-m="🌸">🌸</button><button class="chip-sm" data-m="🍓">🍓</button><button class="chip-sm" data-m="💕">💕</button><button class="chip-sm" data-m="So cute!">So cute!</button><button class="chip-sm" data-m="Yum! 🍰">Yum! 🍰</button></div><form id="chat-form"><input id="chat-in" placeholder="Say something sweet..." maxlength="120" autocomplete="off"><button type="submit" id="chat-send">➤</button></form></div><button id="mute">🔊</button></div>
 <div id="mine" class="cur" style="display:none"><span>🖐️</span></div><div id="rcs"></div></body></html>

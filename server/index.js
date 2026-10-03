@@ -8,15 +8,20 @@ const io=new Server(http,{cors:{origin:true}});const rooms=new Map();
 const pub=r=>r.users.map(u=>({name:u.name,on:!!u.id}));
 io.on('connection',s=>{let R=null,slot=-1;
  s.on('join',({room,name,create},ack)=>{name=String(name||'Baker').slice(0,14);let r=rooms.get(room);
-  if(!r){if(!create)return ack({error:'Room not found 🌸'});r={users:[],doc:newDoc()};rooms.set(room,r)}
+  if(!r){if(!create)return ack({error:'Room not found 🌸'});r={users:[],doc:newDoc(),chat:[]};rooms.set(room,r)}
   let i=r.users.findIndex(u=>u.name===name&&(!u.id||!io.sockets.sockets.has(u.id)));
   if(i<0&&r.users.length<2){r.users.push({name,id:null});i=r.users.length-1}
   if(i<0)return ack({error:'This room already has two bakers 💕'});
   r.users[i].id=s.id;R=room;slot=i;s.join(room);
-  ack({slot:i,doc:r.doc,users:pub(r)});s.to(room).emit('users',pub(r))});
+  ack({slot:i,doc:r.doc,users:pub(r),chat:r.chat||[]});s.to(room).emit('users',pub(r))});
  s.on('act',m=>{const r=rooms.get(R);if(!r)return;const had=r.doc.drawing;
   if(m.t==='drawing'&&had)return s.emit('state',r.doc);apply(r.doc,m);s.to(R).emit('act',m)});
  s.on('cur',m=>{if(R)s.volatile.to(R).emit('cur',{...m,s:slot})});
+ s.on('chat',text=>{const r=rooms.get(R);if(!r||typeof text!=='string')return;const clean=text.trim().slice(0,120);if(!clean)return;
+  const msg={sender:slot,name:r.users[slot]?.name||'Baker',text:clean,time:Date.now()};
+  if(!r.chat)r.chat=[];r.chat.push(msg);if(r.chat.length>50)r.chat.shift();
+  io.to(R).emit('chat',msg)});
+ s.on('cream_event',d=>{if(R)io.to(R).emit('cream_event',{...d,sender:slot})});
  s.on('disconnect',()=>{const r=rooms.get(R);if(r&&r.users[slot]?.id===s.id){r.users[slot].id=null;s.to(R).emit('users',pub(r))}});
 });
 http.listen(process.env.PORT||3000,()=>console.log('🍰 cake shop on',process.env.PORT||3000));
