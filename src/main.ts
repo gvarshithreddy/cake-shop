@@ -133,12 +133,13 @@ function lobbyCheck(){if(phase!=='wait'||users.length<2||!users.every(u=>u.on))r
 
 // ---------- stage UI ----------
 const hero=$('#hero'),how=$('#how'),tools=$('#tools');
+const coarseInput=()=>window.matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0;
 function showStage(n:number){shown=n;ready=false;$('#camc').style.display=n===0?'none':'grid';const S=STG[n];how.classList.remove('show');
  if(n===8)sound.setBgmMode('wish');else if(n===10)sound.gameEnd();else sound.setBgmMode('baking');
  const sub=n===1?`${users[0]?.name} → ↕️ HEIGHT\n${users[1]?.name} → ↔️ WIDTH\n${me===0?'Your job: HEIGHT':'Your job: WIDTH'}`:S.s;
  hero.className='';hero.innerHTML=`<div class="i">${S.i}</div><h1>${S.t}</h1><p>${sub}</p>`;
  const begin=()=>{if(ready||shown!==n)return;ready=true;hero.className='min';sound.click();setCur(false);
-  if(S.how.length){how.innerHTML=`<b>HOW TO DO THIS 💕</b><ol>${S.how.map((h:string)=>`<li>${h}</li>`).join('')}</ol><i>Finish when: ${S.fin}</i><br><small>🎥 Look around (just you): right-drag, scroll, or the buttons.</small>`;how.classList.add('show')}else how.classList.remove('show');updateTools()};
+  if(S.how.length){const lookHint=coarseInput()?'👆 One finger does the task. Use two fingers to look around and pinch to zoom.':'🎥 Look around (just you): right-drag, scroll, or the buttons.';how.innerHTML=`<b>HOW TO DO THIS 💕</b><ol>${S.how.map((h:string)=>`<li>${h}</li>`).join('')}</ol><i>Finish when: ${S.fin}</i><br><small>${lookHint}</small>`;how.classList.add('show')}else how.classList.remove('show');updateTools()};
  hero.onclick=begin;if(n===8||n===10)setTimeout(begin,n===8?3000:4000);
  if(n===10){$('#how').innerHTML='';at('names',4200,()=>{const t=$('#toast');t.innerHTML=`${users[0].name} &amp; ${users[1].name} 💕`;t.classList.add('show')})}
  setCur(false)}
@@ -381,7 +382,7 @@ let tyaw=0,tpitch=0,tzoom=1,cyaw=0,cpitch=0,czoom=1,orb=false,pm=[0,0],pd=0;cons
 let mine:number[][]=[],pts:number[][]=[],last=[0,0],lastT=0,y0=0,startHit:any=null,wd=0,wdT=0;const tg=[0,0],w=[0,0],blow:number[]=[],smoked=new Set();
 const strokeCfg:any={3:{k:'fill',c:'#e0345a',r:.1},4:{k:'frost',c:'#fff6f0',r:.16},6:{k:'write',c:'#8a4a3a',r:.055}};
 cv.addEventListener('pointerdown',(e:any)=>{tx=mx=e.clientX;ty=my=e.clientY;
- if(e.pointerType==='touch'){tp.set(e.pointerId,[e.clientX,e.clientY]);if(tp.size>1){down=false;pts=[];mine=[];return}}
+ if(e.pointerType==='touch'){tp.set(e.pointerId,[e.clientX,e.clientY]);if(tp.size>1){down=false;pts=[];mine=[];trails[me]=[];setLine(trailL[me],[]);if(pvm){scene.remove(pvm);pvm=null}setCur(false);const a=[...tp.values()];pm=[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2];pd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);return}}
  if(e.button>0&&phase==='game'&&doc.stage>0){orb=true;cv.setPointerCapture(e.pointerId);last=[e.clientX,e.clientY];return}
  if(phase!=='game'||!ready)return;
  const peerSlot=me===0?1:0,peerCur=rcm[peerSlot];
@@ -412,13 +413,13 @@ addEventListener('pointermove',(e:any)=>{tx=e.clientX;ty=e.clientY;if(phase!=='g
  }
  last=[e.clientX,e.clientY];
  sock.volatile.emit('cur',{x:e.clientX/innerWidth,y:e.clientY/innerHeight,d:down,g:doc.stage===0?(g||ground(e)):null})});
-function up(e:any){tp.delete(e.pointerId);if(tp.size<2)pd=0;if(orb){orb=false;return}if(!down)return;down=false;setCur(false);const s=doc.stage;
+function up(e:any){const wasTouch=e.pointerType==='touch';tp.delete(e.pointerId);if(tp.size<2)pd=0;if(orb){orb=false;return}if(wasTouch&&tp.size>0){down=false;setCur(false);return}if(!down)return;down=false;setCur(false);const s=doc.stage;
  if(s===0&&!doc.drawing){if(looksClosed(mine))finishDrawing(mine);else if(mine.length>3)toast('Circle back to where you started 💕');mine=[];trails[me]=[];setLine(trailL[me],[]);sock.volatile.emit('cur',{x:e.clientX/innerWidth,y:e.clientY/innerHeight,d:false,g:null})}
  if(s===2&&startHit&&(y0-e.clientY>30||dist([e.clientX,e.clientY],last)<8)){act({t:'add',k:'layers',v:{s:.72+Math.random()*.2,rot:rnd()*.8,dx:rnd()*.3,dz:rnd()*.3,tilt:rnd()*.1}});sound.layerPop()}
  if(strokeCfg[s]&&pts.length>=(strokeCfg[s].k==='frost'?1:2)){const c=strokeCfg[s];act({t:'add',k:c.k,v:{id:Math.random().toString(36).slice(2),author:me,pts,c:c.c,r:c.r}});if(s===6)sound.writing();else if(s===4)sound.frosting();else sound.filling()}
  pts=[];setLine(prev,[]);if(pvm){scene.remove(pvm);pvm=null}}
 cv.addEventListener('contextmenu',e=>e.preventDefault());cv.addEventListener('wheel',(e:any)=>{e.preventDefault();if(doc.stage>0)tzoom=clamp(tzoom*Math.exp(e.deltaY*.001),.5,2)},{passive:false});
-$('#camc').onclick=(e:any)=>{const c=e.target.dataset.c;if(!c)return;if(c==='l')tyaw-=.4;if(c==='r')tyaw+=.4;if(c==='u')tpitch-=.2;if(c==='d')tpitch+=.2;if(c==='in')tzoom=clamp(tzoom/1.2,.5,2);if(c==='out')tzoom=clamp(tzoom*1.2,.5,2);if(c==='0'){tyaw=tpitch=0;tzoom=1}sound.click()};
+$('#camc').onclick=(e:any)=>{const b=(e.target as HTMLElement).closest('button') as HTMLButtonElement|null;const c=b?.dataset.c;if(!c)return;if(c==='l')tyaw-=.4;if(c==='r')tyaw+=.4;if(c==='u')tpitch-=.2;if(c==='d')tpitch+=.2;if(c==='in')tzoom=clamp(tzoom/1.2,.5,2);if(c==='out')tzoom=clamp(tzoom*1.2,.5,2);if(c==='0'){tyaw=tpitch=0;tzoom=1}sound.click()};
 addEventListener('pointerup',up);addEventListener('pointercancel',up);
 
 // ---------- frame ----------
